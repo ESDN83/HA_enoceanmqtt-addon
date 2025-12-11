@@ -13,27 +13,8 @@ common:
     icon: mdi:clock
 
 A5-30-03:
-  WL:
-    name: Water Level
-    component: sensor
-    device_class: none
-    unit_of_measurement: "%"
-    icon: mdi:water-percent
-    state_class: measurement
-  PS:
-    name: Pump Status
-    component: binary_sensor
-    device_class: running
-    icon: mdi:pump
   AL:
     name: Alarm
     component: binary_sensor
     device_class: problem
-    icon: mdi:alert
-  BAT:
-    name: Battery
-    component: sensor
-    device_class: battery
-    unit_of_measurement: "%"
-    icon: mdi:battery
-    state_class: measurement
+    icon: mdi:pipe-valve
