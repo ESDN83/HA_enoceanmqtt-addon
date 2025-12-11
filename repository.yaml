@@ -1,4 +1,4 @@
 ---
-name: "EnOcean to MQTT"
+name: "EnOcean to MQTT (Kessel Staufix Support)"
 url: "https://github.com/ESDN83/HA_enoceanmqtt-addon"
-maintainer: "ChristopheHD"
+maintainer: "ESDN83"

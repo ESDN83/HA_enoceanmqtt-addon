@@ -23,7 +23,7 @@ RUN apk add --no-cache python3 py3-pip git && \
 COPY run.sh .
 RUN chmod a+x run.sh
 
-# Copy custom configuration files
-COPY custom_configs /data/custom_configs
+# Copy custom configuration files to app directory
+COPY custom_configs /app/custom_configs
 
 CMD [ "/app/run.sh" ]

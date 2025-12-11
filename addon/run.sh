@@ -8,6 +8,14 @@ bashio::config.require 'mqtt.keepalive'
 
 bashio::log.green "Preparing to start..."
 
+# Copy custom configuration files to /data if they exist
+if [ -d "/app/custom_configs" ]; then
+    bashio::log.blue "Copying custom configuration files..."
+    mkdir -p /data/custom_configs
+    cp -rf /app/custom_configs/* /data/custom_configs/
+    bashio::log.green "Custom configuration files copied to /data/custom_configs/"
+fi
+
 # Set files to be used
 export CONFIG_FILE="/data/enoceanmqtt.conf"
 export DB_FILE="/data/enoceanmqtt_db.json"

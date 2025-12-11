@@ -1,15 +1,14 @@
 ---
-name: "EnOcean MQTT"
-description: "EnOcean to MQTT bridge"
+name: "EnOcean MQTT (Kessel Staufix)"
+description: "EnOcean to MQTT bridge with Kessel Staufix Control support"
 url: "https://github.com/ESDN83/HA_enoceanmqtt-addon"
-version: "1.0.1"
-slug: "ha_enoceanmqtt_aseracorp"
+version: "1.1.0"
+slug: "ha_enoceanmqtt_kessel"
 homeassistant: "2024.2.0"
 init: false
 uart: true
 hassio_api: true
 homeassistant_api: true
-image: "ghcr.io/christophehd/{arch}-ha_enoceanmqtt-addon"
 services:
   - "mqtt:need"
 map:
