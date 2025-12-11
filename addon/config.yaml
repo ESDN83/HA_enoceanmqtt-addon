@@ -1,7 +1,7 @@
 ---
 name: "EnOcean MQTT"
 description: "EnOcean to MQTT bridge"
-url: "https://github.com/ChristopheHD/HA_enoceanmqtt-addon"
+url: "https://github.com/ESDN83/HA_enoceanmqtt-addon"
 version: "1.0.1"
 slug: "ha_enoceanmqtt_aseracorp"
 homeassistant: "2024.2.0"
