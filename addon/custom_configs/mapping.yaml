@@ -1,0 +1,24 @@
+common:
+  rssi:
+    component: sensor
+    name: RSSI
+    device_class: signal_strength
+    unit_of_measurement: dBm
+    icon: mdi:signal
+    state_class: measurement
+  date:
+    component: sensor
+    name: Last Update
+    device_class: timestamp
+    icon: mdi:clock
+
+A5-30-03:
+  AL:
+    component: binary_sensor
+    name: Alarm
+    config:
+      state_topic: AL
+      payload_on: 1
+      payload_off: 0
+      device_class: problem
+      icon: mdi:pipe-valve

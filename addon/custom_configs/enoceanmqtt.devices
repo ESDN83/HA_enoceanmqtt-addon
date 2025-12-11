@@ -1,0 +1,5 @@
+[staufix_control]
+address = 0x05834fa4
+rorg = 0xA5
+func = 0x30
+type = 0x03
