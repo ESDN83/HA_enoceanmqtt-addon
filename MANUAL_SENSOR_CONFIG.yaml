@@ -1,0 +1,26 @@
+# Manual MQTT Sensor Configuration for Kessel Staufix Control
+# Add this to your Home Assistant configuration.yaml
+
+mqtt:
+  binary_sensor:
+    - name: "Staufix Control Alarm"
+      unique_id: "staufix_control_alarm_manual"
+      state_topic: "enoceanmqtt/staufix_control"
+      value_template: "{% if value_json.AL == 0 %}ON{% else %}OFF{% endif %}"
+      device_class: problem
+      icon: mdi:pipe-valve
+      device:
+        identifiers: ["05834FA4"]
+        name: "Kessel Staufix Control"
+        model: "Staufix Control"
+        manufacturer: "Kessel"
+
+# After adding this to configuration.yaml:
+# 1. Check configuration (Developer Tools → YAML → Check Configuration)
+# 2. Restart Home Assistant
+# 3. Disable/delete the auto-discovered sensors from the addon
+# 4. The alarm will be ON when water is detected (AL=0), OFF when no water (AL=1)
+#
+# Note: The logic is inverted because the Kessel device sends:
+#   AL=0 when water is present (ALARM condition)
+#   AL=1 when no water (normal condition)

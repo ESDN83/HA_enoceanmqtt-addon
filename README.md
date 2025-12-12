@@ -1,96 +1,181 @@
-<div align="center">
+# Home Assistant EnOcean MQTT Addon - Kessel Staufix Control Edition
 
-<a href="" target="_blank" title="Go to  website">
-<img width="196px" alt="Home Assistant enOcean addon" src="https://github.com/ChristopheHD/HA_enoceanmqtt-addon/blob/master/addon/logo.png?raw=true">
-</a>
+This is a modified version of the [HA_enoceanmqtt addon](https://github.com/ChristopheHD/HA_enoceanmqtt-addon) with specific support for the **Kessel Staufix Control** backwater alarm system.
 
-# Home Assistant EnOcean addon
+## Features
 
-EnOcean compatibility using MQTT integration
+✅ Support for Kessel Staufix Control (EEP A5-30-03)  
+✅ Automatic MQTT discovery in Home Assistant  
+✅ Real-time backwater alarm notifications  
+✅ Fixes for USB stick base ID communication issues  
+✅ Pre-configured device and EEP profiles  
 
-![downloads](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=addon%20usage&suffix=%20active%20installations&cacheSeconds=15600&url=https://analytics.home-assistant.io/addons.json&query=$.f93730fa_ha_enoceanmqtt_aseracorp.total)
+## What is Kessel Staufix Control?
 
-</div>
+The Kessel Staufix Control is an EnOcean-based backwater alarm system that monitors for sewage backflow. It sends wireless telegrams when water is detected in the drainage system.
 
-<div align="center"><h4><a href="#-about-the-project">ℹ️ About the Project</a> • <a href="#-features">⭐️ Features</a> • <a href="#-setup">⚙ ️Setup</a> • <a href="#-contributing">👏🏻 Contributing</a> • <a href="#-stack-tech">🛠 Stack Tech</a></h4></div>
+## Installation
 
-## ℹ️ About the Project
+### Step 1: Add Repository to Home Assistant
 
-This [Home Assistant](https://www.home-assistant.io/) addon allows to integrate [EnOcean devices](https://www.enocean-alliance.org/products/) using [MQTT integration](https://www.home-assistant.io/integrations/mqtt/).
+1. Open Home Assistant
+2. Go to **Settings** → **Add-ons** → **Add-on Store**
+3. Click the three dots menu (⋮) in the top right
+4. Select **Repositories**
+5. Add this URL: `https://github.com/ESDN83/HA_enoceanmqtt-addon`
+6. Click **Add**
 
-## ⭐️ Features
+### Step 2: Install the Addon
 
-1. **Compatibility**
+1. Find "EnOcean MQTT (Kessel Staufix)" in the Add-on Store
+2. Click **Install**
+3. Wait for installation to complete (builds Docker image locally)
 
-100+ devices supported
+### Step 3: Configure the Addon
 
-2. **Pairing**
+Go to the **Configuration** tab and set:
 
-Pair devices from Home Assistant
+```yaml
+enocean_port: /dev/serial/by-id/usb-EnOcean_GmbH_EnOcean_USB_300_DC_FT55ZDV5-if00-port0
+device_file: /data/custom_configs/enoceanmqtt.devices
+mqtt:
+  host: core-mosquitto
+  port: 1883
+  user: your_mqtt_user
+  pwd: your_mqtt_password
+  discovery_prefix: homeassistant
+  prefix: enoceanmqtt
+  client_id: enocean_gateway
+  keepalive: 60
+mapping_files:
+  eep_file: /data/custom_configs/EEP.xml
+  mapping_file: ""
+logging:
+  debug: false
+  log_packets: false
+  log_file: /config/enoceanmqtt.log
+```
 
-3. **Versatile architecture**
+**Important:** Adjust the `enocean_port` to match your USB stick path. Find it in **Settings** → **System** → **Hardware**.
 
-Add your own device compatibility
+### Step 4: Configure Your Device
 
-## ⚙ ️Simple setup
+Edit the device file at `/data/custom_configs/enoceanmqtt.devices` to match your Kessel Staufix Control device ID:
 
-### Installation
+```ini
+[staufix_control]
+address = 0x05834fa4  # Replace with your device ID
+rorg = 0xA5
+func = 0x30
+type = 0x03
+sender = 0xffd1f401  # Replace with your gateway base ID + offset
+```
 
-To install this project, follow these steps:
+### Step 5: Add Manual Sensor Configuration
 
-#### Installation
+The auto-discovered sensors don't work correctly due to field name mismatches. Add this to your Home Assistant `configuration.yaml`:
 
-1. If you don't have a MQTT broker yet, click on the below button and then **Install** or in Home Assistant go to **Settings → Add-ons → Add-on store** and install the **Mosquitto broker** addon.
+```yaml
+mqtt:
+  binary_sensor:
+    - name: "Staufix Control Alarm"
+      unique_id: "staufix_control_alarm_manual"
+      state_topic: "enoceanmqtt/staufix_control"
+      value_template: "{% if value_json.AL == 0 %}ON{% else %}OFF{% endif %}"
+      device_class: problem
+      icon: mdi:pipe-valve
+      device:
+        identifiers: ["05834FA4"]  # Replace with your device ID
+        name: "Kessel Staufix Control"
+        model: "Staufix Control"
+        manufacturer: "Kessel"
+```
 
-[![](https://my.home-assistant.io/badges/supervisor_addon.svg)](https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto)
+**Note:** The logic is inverted because the Kessel device sends `AL=0` when water is detected (alarm condition) and `AL=1` when no water (normal).
 
-2. Click on the below button and then **Add** or go back to the **Add-on store**, click **⋮ → Repositories**, fill in</br> **`https://github.com/ChristopheHD/HA_enoceanmqtt-addon`** and click **Add → Close**.
+### Step 6: Start and Verify
 
-[![](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/ChristopheHD/HA_enoceanmqtt-addon)
+1. Start the addon
+2. Check logs for successful connection
+3. Trigger the alarm to test
+4. Verify the sensor updates in Home Assistant
 
-3. Click on the addon and press **Install** and wait until the addon is installed.
+## Troubleshooting
 
-#### Configuration
+### "Waiting for device base ID"
 
-1. Adapt the [`addon/enoceanmqtt.devices.sample`](https://github.com/ChristopheHD/HA_enoceanmqtt-addon/blob/master/addon/enoceanmqtt.devices.sample) (refer to the [wiki](https://github.com/ChristopheHD/HA_enoceanmqtt-addon/wiki) for help) and put it to your Home Assistant **/config** directory. You can use the Home Assistant **File Editor**.
-1. Go on the **Configuration** tab of the addon
-   - Indicate the location of this device file under the **device_file** entry (on HAOS, it would be `/config/enoceanmqtt.devices`).
-   - Select the serial interface of your EnOcean transceiver in the list of detected serial ports. When using yaml configuration, the format is for example:
-     ```yaml
-     enocean_port: /dev/ttyUSB0
-     ```
-   - Click **Save** at the bottom of the page
-1. Start the addon by going to **Info** tab and click **Start**
+This addon includes a patch that automatically sets a default base ID if the USB stick doesn't respond. If you still see this message indefinitely:
 
-## 👏🏻 Contributing
+1. Restart Home Assistant completely
+2. Ensure no other software (like ioBroker) is using the USB stick
+3. Check that the USB stick is properly connected
 
-We welcome contributions from the community! If you would like to contribute to this project, please follow the guidelines below.
+### Sensors Show "Unknown"
 
-### Ways to Contribute
+1. Verify telegrams are being received in the addon logs
+2. Check MQTT messages in Developer Tools → MQTT (listen to `enoceanmqtt/#`)
+3. Ensure the manual sensor configuration is added to `configuration.yaml`
+4. Restart Home Assistant after adding the configuration
 
-- Report bugs or issues by opening a new issue on our GitHub repository.
-- Suggest new features or improvements by opening a new issue on our GitHub repository.
-- Contribute code by forking the repository, making changes, and submitting a pull request.
+### Wrong Device ID
 
-For more information on how to contribute, please visit [Contribution Guidelines](https://github.com/ChristopheHD/HA_enoceanmqtt-addon/wiki/Contributing).
+Find your device ID by:
+1. Enable `log_packets: true` in addon configuration
+2. Trigger the alarm
+3. Check logs for telegrams from your device
+4. Update the device ID in the configuration
 
-## 🛠 Stack Tech
-[![Python][Python-badge]][Python-url] - A general-purpose programming language
+## Creating Automations
 
-[Python-badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python
-[Python-url]: }
-[![Docker][Docker-badge]][Docker-url] - An open-source platform for deploying applications
+Example automation for backwater alarm notifications:
 
-[Docker-badge]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker
-[Docker-url]: }
-[![MQTT][MQTT-badge]][MQTT-url] - Lightweight messaging protocol
+```yaml
+automation:
+  - alias: "Backwater Alarm Notification"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.staufix_control_alarm
+        to: "on"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Backwater Alarm!"
+          message: "The Staufix has detected backwater in the drainage system!"
+          data:
+            priority: high
+            ttl: 0
+```
 
-[MQTT-badge]: https://img.shields.io/badge/MQTT-C92C3E?style=for-the-badge&logo=mqtt
-[MQTT-url]: }
+## Technical Details
 
-<img src="https://raw.githubusercontent.com/mak-gitdev/HA_enoceanmqtt-addon/master/.github/images/install_addon.svg" alt="Install Addon" width="75%"/>
-<br/>
+### What's Different from the Original Addon?
 
----
+1. **Custom EEP Profile:** Added A5-30-03 profile definition for Kessel Staufix Control
+2. **Base ID Patch:** Runtime patch to bypass USB stick base ID query issues
+3. **Pre-configured Device:** Includes sample device configuration
+4. **Documentation:** Comprehensive setup guide for Kessel devices
 
- <div align="center">Built with ❤️ with <a href="https://github.com/luisvent/document_my_project">Document My Project</a></div>
+### Files Included
+
+- `addon/custom_configs/EEP.xml` - Custom EEP profile for A5-30-03
+- `addon/custom_configs/enoceanmqtt.devices` - Sample device configuration
+- `addon/skip_base_id.patch` - Patch to fix base ID wait issue
+- `MANUAL_SENSOR_CONFIG.yaml` - Working sensor configuration
+
+## Support
+
+For issues specific to this Kessel Staufix edition:
+- Open an issue on [GitHub](https://github.com/ESDN83/HA_enoceanmqtt-addon/issues)
+
+For general EnOcean MQTT questions:
+- See the [original addon documentation](https://github.com/ChristopheHD/HA_enoceanmqtt-addon)
+
+## Credits
+
+- Original addon by [ChristopheHD](https://github.com/ChristopheHD/HA_enoceanmqtt-addon)
+- Kessel Staufix Control support added by ESDN83
+- Based on [enocean-mqtt](https://github.com/embyt/enocean-mqtt) by embyt
+
+## License
+
+Same as the original addon - see LICENSE file.
