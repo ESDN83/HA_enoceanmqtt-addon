@@ -2,7 +2,7 @@
 name: "EnOcean MQTT (Kessel Staufix)"
 description: "EnOcean to MQTT bridge with Kessel Staufix Control support"
 url: "https://github.com/ESDN83/HA_enoceanmqtt-addon"
-version: "1.1.4"
+version: "1.1.5"
 slug: "ha_enoceanmqtt_kessel"
 homeassistant: "2024.2.0"
 init: false
@@ -21,7 +21,7 @@ options:
   enocean_port: ""
   enocean_tcp: ""
   mapping_files:
-    mapping_file: ""
+    mapping_file: "/data/custom_configs/mapping.yaml"
     eep_file: "/data/custom_configs/EEP.xml"
   logging:
     log_file: "/config/enoceanmqtt.log"
