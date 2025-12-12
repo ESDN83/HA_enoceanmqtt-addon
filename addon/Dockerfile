@@ -26,4 +26,7 @@ RUN chmod a+x run.sh
 # Copy custom configuration files to app directory
 COPY custom_configs /app/custom_configs
 
+# Copy patch file
+COPY skip_base_id.patch /app/skip_base_id.patch
+
 CMD [ "/app/run.sh" ]

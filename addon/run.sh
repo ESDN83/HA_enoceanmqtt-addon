@@ -137,6 +137,15 @@ if ! bashio::config.is_empty 'mapping_files.eep_file'; then
    fi
 fi
 
+# Apply patch to skip base ID wait
+if [ -e "/app/skip_base_id.patch" ]; then
+   bashio::log.green "Applying base ID skip patch..."
+   COMMUNICATOR_FILE=$(find /app/venv/lib/ -path "*/enoceanmqtt/communicator.py" -print -quit 2>/dev/null)
+   if [ -n "$COMMUNICATOR_FILE" ]; then
+      cd "$(dirname "$COMMUNICATOR_FILE")/.." && patch -p1 < /app/skip_base_id.patch || bashio::log.warning "Patch already applied or failed"
+   fi
+fi
+
 bashio::log.green "Starting EnOceanMQTT..."
 # shellcheck source=/dev/null
 . /app/venv/bin/activate

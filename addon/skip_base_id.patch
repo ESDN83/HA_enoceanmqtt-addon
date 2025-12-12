@@ -1,0 +1,15 @@
+--- a/enoceanmqtt/communicator.py
++++ b/enoceanmqtt/communicator.py
+@@ -100,8 +100,10 @@ class Communicator:
+         """
+         Wait for the base ID to be received from the EnOcean device.
+         """
+-        while self._base_id is None:
+-            time.sleep(1)
++        # Skip waiting for base ID - use a default or configured value
++        if self._base_id is None:
++            logging.info("Base ID not received, using default 0xFFD1F400")
++            self._base_id = [0xFF, 0xD1, 0xF4, 0x00]
+ 
+     def _process_radio_packet(self, packet):
+         """
