@@ -1,4 +1,4 @@
-*** use https://github.com/ESDN83/ha-enocean-mqtt-slim instead ***
+#### use https://github.com/ESDN83/ha-enocean-mqtt-slim instead
 
 
 # Home Assistant EnOcean MQTT Addon - Kessel Staufix Control Edition
