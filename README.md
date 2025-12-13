@@ -1,3 +1,6 @@
+*** use https://github.com/ESDN83/ha-enocean-mqtt-slim instead ***
+
+
 # Home Assistant EnOcean MQTT Addon - Kessel Staufix Control Edition
 
 This is a modified version of the [HA_enoceanmqtt addon](https://github.com/ChristopheHD/HA_enoceanmqtt-addon) with specific support for the **Kessel Staufix Control** backwater alarm system.
